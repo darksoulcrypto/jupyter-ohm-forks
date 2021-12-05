@@ -1,3 +1,3 @@
-def add_dl_data(df):
+def add_defi_llama_data(df):
 
     return df

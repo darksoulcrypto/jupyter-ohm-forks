@@ -1,3 +1,3 @@
-def add_du_data(df):
+def add_dune_data(df):
 
     return df
