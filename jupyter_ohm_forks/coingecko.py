@@ -13,4 +13,4 @@ def add_coingecko_data(df):
 
     data = session.get(f"{uri}/{path}").json()
 
-    return pd.merge(df, pd.DataFrame(data), left_on='Ticker', right_on='symbol') # TODO - figure how to merge this shit
+    return pd.merge(df, pd.DataFrame(data), left_on='Ticker', right_on='symbol')
