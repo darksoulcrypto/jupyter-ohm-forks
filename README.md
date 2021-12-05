@@ -11,3 +11,5 @@ cd jupyter-ohm-forks
 poetry shell
 jupyter notebook
 ```
+
+Alternately just use https://mybinder.org.
