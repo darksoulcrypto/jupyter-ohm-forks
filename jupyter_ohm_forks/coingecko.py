@@ -12,5 +12,7 @@ def add_coingecko_data(df):
     path = f"api/v3/coins/markets?vs_currency=usd&ids={coins}"
 
     data = session.get(f"{uri}/{path}").json()
+    df_new = pd.DataFrame(data)
+    df_new = df_new.add_prefix('cg_')
 
-    return pd.merge(df, pd.DataFrame(data), left_on='Ticker', right_on='symbol')
+    return pd.merge(df, df_new, left_on='Ticker', right_on='cg_symbol')
