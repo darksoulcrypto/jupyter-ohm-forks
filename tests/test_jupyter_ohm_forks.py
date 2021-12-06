@@ -1,40 +1,85 @@
 import pandas as pd
 from jupyter_ohm_forks.coingecko import add_coingecko_data
+from jupyter_ohm_forks.defi_llama import add_defi_llama_data
 
 
 def test_coingecko():
     req_columns = [
-        "Name",
-        "Ticker",
-        "id",
-        "symbol",
         "name",
-        "image",
-        "current_price",
-        "market_cap",
-        "market_cap_rank",
-        "fully_diluted_valuation",
-        "total_volume",
-        "high_24h",
-        "low_24h",
-        "price_change_24h",
-        "price_change_percentage_24h",
-        "market_cap_change_24h",
-        "market_cap_change_percentage_24h",
-        "circulating_supply",
-        "total_supply",
-        "max_supply",
-        "ath",
-        "ath_change_percentage",
-        "ath_date",
-        "atl",
-        "atl_change_percentage",
-        "atl_date",
-        "roi",
-        "last_updated",
+        "ticker",
+        "cg_id",
+        "cg_symbol",
+        "cg_name",
+        "cg_image",
+        "cg_current_price",
+        "cg_market_cap",
+        "cg_market_cap_rank",
+        "cg_fully_diluted_valuation",
+        "cg_total_volume",
+        "cg_high_24h",
+        "cg_low_24h",
+        "cg_price_change_24h",
+        "cg_price_change_percentage_24h",
+        "cg_market_cap_change_24h",
+        "cg_market_cap_change_percentage_24h",
+        "cg_circulating_supply",
+        "cg_total_supply",
+        "cg_max_supply",
+        "cg_ath",
+        "cg_ath_change_percentage",
+        "cg_ath_date",
+        "cg_atl",
+        "cg_atl_change_percentage",
+        "cg_atl_date",
+        "cg_roi",
+        "cg_last_updated",
     ]
 
     df1 = pd.read_csv("forks.csv")
     df2 = add_coingecko_data(df1)
+    assert list(df2.columns) == req_columns
+    assert len(df1) == len(df2)
+
+
+def test_defi_llama():
+    req_columns = [
+        "name",
+        "ticker",
+        "dl_id",
+        "dl_name",
+        "dl_address",
+        "dl_symbol",
+        "dl_url",
+        "dl_description",
+        "dl_chain",
+        "dl_logo",
+        "dl_audits",
+        "dl_audit_note",
+        "dl_gecko_id",
+        "dl_cmcId",
+        "dl_category",
+        "dl_chains",
+        "dl_module",
+        "dl_twitter",
+        "dl_audit_links",
+        "dl_oracles",
+        "dl_slug",
+        "dl_tvl",
+        "dl_chainTvls",
+        "dl_change_1h",
+        "dl_change_1d",
+        "dl_change_7d",
+        "dl_staking",
+        "dl_fdv",
+        "dl_mcap",
+        "dl_forkedFrom",
+        "dl_pool2",
+        "dl_listedAt",
+        "dl_audit",
+        "dl_audits_link",
+    ]
+
+    df1 = pd.read_csv("forks.csv")
+    df2 = add_defi_llama_data(df1)
     assert list(df2.columns) == req_columns
     assert len(df1) == len(df2)
