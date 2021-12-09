@@ -113,6 +113,8 @@ def test_on_chain():
         "staked_contract",
         "staking_contract",
         "api",
+        "oc_total_supply",
+        "oc_circ_supply",
         "oc_token_ticker",
         "oc_five_day_rate",
         "oc_staking_apy",

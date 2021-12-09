@@ -36,8 +36,7 @@ def add_on_chain_data(df):
         """
         #marketPrice = ((await getMarketPrice(networkID, provider)) / Math.pow(10, 9)) * mimPrice;
 
-        data['oc_total_supply'] = token_contract.functions.totalSupply().call() / math.pow(10, 9)
-        data['oc_circ_supply'] = staked_contract.circulatingSupply().call() / math.pow(10, 9)
+
 
         data['oc_staking_tvl'] = data['oc_circ_supply'] * market_price
         data['oc_market_cap'] = data['oc_total_supply'] * market_price
@@ -57,6 +56,9 @@ def add_on_chain_data(df):
 
         rfv = treasury_balance / total_supply
         """
+
+        data['oc_total_supply'] = token_contract.functions.totalSupply().call() / math.pow(10, 9)
+        data['oc_circ_supply'] = staked_contract.functions.circulatingSupply().call() / math.pow(10, 9)
 
         epoch = staking_contract.functions.epoch().call()
         staking_reward = epoch[3]
