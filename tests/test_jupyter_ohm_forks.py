@@ -1,12 +1,19 @@
 import pandas as pd
+import yaml
 from jupyter_ohm_forks.coingecko import add_coingecko_data
 from jupyter_ohm_forks.defi_llama import add_defi_llama_data
-
+from jupyter_ohm_forks.on_chain import add_on_chain_data
 
 def test_coingecko():
+
     req_columns = [
         "name",
-        "ticker",
+        "token_ticker",
+        "token_contract",
+        "staked_ticker",
+        "staked_contract",
+        "staking_contract",
+        "api",
         "cg_id",
         "cg_symbol",
         "cg_name",
@@ -35,16 +42,24 @@ def test_coingecko():
         "cg_last_updated",
     ]
 
-    df1 = pd.read_csv("forks.csv")
+    with open('forks.yaml') as f:
+        df1 = pd.json_normalize(yaml.load(f, Loader=yaml.SafeLoader))
     df2 = add_coingecko_data(df1)
-    assert list(df2.columns) == req_columns
+    columns = list(df2.columns)
+    columns.sort()
+    req_columns.sort()
+    assert columns == req_columns
     assert len(df1) == len(df2)
-
 
 def test_defi_llama():
     req_columns = [
         "name",
-        "ticker",
+        "token_ticker",
+        "token_contract",
+        "staked_ticker",
+        "staked_contract",
+        "staking_contract",
+        "api",
         "dl_id",
         "dl_name",
         "dl_address",
@@ -79,7 +94,36 @@ def test_defi_llama():
         "dl_audits_link",
     ]
 
-    df1 = pd.read_csv("forks.csv")
+    with open('forks.yaml') as f:
+        df1 = pd.json_normalize(yaml.load(f, Loader=yaml.SafeLoader))
     df2 = add_defi_llama_data(df1)
-    assert list(df2.columns) == req_columns
+    columns = list(df2.columns)
+    columns.sort()
+    req_columns.sort()
+    assert columns == req_columns
+    assert len(df1) == len(df2)
+
+def test_on_chain():
+
+    req_columns = [
+        "name",
+        "token_ticker",
+        "token_contract",
+        "staked_ticker",
+        "staked_contract",
+        "staking_contract",
+        "api",
+        "oc_token_ticker",
+        "oc_five_day_rate",
+        "oc_staking_apy",
+        "oc_next_rebase"
+    ]
+
+    with open('forks.yaml') as f:
+        df1 = pd.json_normalize(yaml.load(f, Loader=yaml.SafeLoader))
+    df2 = add_on_chain_data(df1)
+    columns = list(df2.columns)
+    columns.sort()
+    req_columns.sort()
+    assert columns == req_columns
     assert len(df1) == len(df2)

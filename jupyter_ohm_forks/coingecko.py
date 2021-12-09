@@ -14,4 +14,4 @@ def add_coingecko_data(df):
     df_new = pd.DataFrame(data)
     df_new = df_new.add_prefix("cg_")
 
-    return pd.merge(df, df_new, left_on="ticker", right_on="cg_symbol")
+    return pd.merge(df, df_new, left_on="token_ticker", right_on="cg_symbol")
