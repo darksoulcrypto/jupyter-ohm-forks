@@ -4,8 +4,8 @@ from web3 import Web3
 import pandas as pd
 
 def get_price(symbol):
-    url = f"https://min-api.cryptocompare.com/data/price?fsym={symbol}&tsyms=USD"
-    return requests.get(url).json()['USD']
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={symbol}&vs_currencies=usd"
+    return requests.get(url).json()[symbol]['usd']
 
 def add_on_chain_data(df):
 
@@ -14,10 +14,10 @@ def add_on_chain_data(df):
     for idx, row in df.iterrows():
         w3 = Web3(Web3.HTTPProvider(row['api']))
 
-        token_abi = open(f"abis/{row['token_ticker']}.abi", "r").read()
-        staked_abi = open(f"abis/{row['staked_ticker']}.abi", "r").read()
-        staking_abi = open(f"abis/{row['staked_ticker']}staking.abi", "r").read()
-        supply_abi = open(f"abis/{row['token_ticker']}circulating.abi", "r").read()
+        token_abi = open(f"abis/{row['token_abi']}", "r").read()
+        staked_abi = open(f"abis/{row['staked_abi']}", "r").read()
+        staking_abi = open(f"abis/{row['staking_abi']}", "r").read()
+        supply_abi = open(f"abis/{row['supply_abi']}", "r").read()
 
         token_contract = w3.eth.contract(Web3.toChecksumAddress(row['token_contract']), abi=token_abi)
         staked_contract = w3.eth.contract(Web3.toChecksumAddress(row['staked_contract']), abi=staked_abi)
@@ -31,9 +31,8 @@ def add_on_chain_data(df):
         staked_circ_supply = staked_contract.functions.circulatingSupply().call() / math.pow(10, 9)
 
         data["oc_current_block"] = w3.eth.block_number
-        #data["oc_block_time"] = w3.eth.get_block(data["oc_current_block"]).timestamp
 
-        data['oc_market_price'] = get_price(row['token_ticker'])
+        data['oc_market_price'] = get_price(row['name'])
         circ_supply_function = getattr(supply_contract.functions, f"{row['token_ticker'].upper()}CirculatingSupply")
         circ_supply = circ_supply_function().call() / math.pow(10, 9)
 
