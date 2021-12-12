@@ -38,6 +38,19 @@
             
   <section id="Challenges">
 <h1>Challenges<a class="headerlink" href="#Challenges" title="Permalink to this headline">¶</a></h1>
+<section id="Non-EVM-Chains">
+<h2>Non-EVM Chains<a class="headerlink" href="#Non-EVM-Chains" title="Permalink to this headline">¶</a></h2>
+<p>A fork that is deployed on a non-EVM chain such as Invictus DAO are a challenge as the same code cannot be used to collect metrics. Special pipeline steps will be required to deal with non-EVM forks. As long as the basic metrics can be pulled then the extended metrics should be able to be calculated just as with EVM forks.</p>
+</section>
+<section id="Non-forks">
+<h2>Non-forks<a class="headerlink" href="#Non-forks" title="Permalink to this headline">¶</a></h2>
+<p>Non-forks are on EVM but are not really forks. And example of this would be Temple. Again, this will likely require special pipeline steps to grab the basic metrics. As with non-EVM chains, as long as the basic metrics can be pulled then the extended metrics should be able to be calculated.</p>
+</section>
+<section id="Close-Source">
+<h2>Close Source<a class="headerlink" href="#Close-Source" title="Permalink to this headline">¶</a></h2>
+<p>Closed source or just not publishing the code base on Github or another public source code repository leads to issues trying to track each of the contracts down. As an example, most of the OHM forks if they replicate the OHM docs then obtaining the contracts is pretty simple. But there are a few contracts that are not included in the docs and those really require access to github repos to find. These forks will either need to have missing metrics or if the devs are helpful they might be able to
+provide.</p>
+</section>
 </section>
 
 
@@ -60,7 +73,12 @@
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Challenges</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Challenges</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Non-EVM-Chains">Non-EVM Chains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Non-forks">Non-forks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Close-Source">Close Source</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="metrics.html">Ohm Fork Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extended-metrics.html">Extended Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="snapshot-usage.html">Snapshot Usage</a></li>
