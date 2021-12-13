@@ -5,7 +5,45 @@
    "metadata": {},
    "source": [
     "# OHM Fork Extended Metrics\n",
-    "The definition used in this research for extended metrics is to cover anything that is calculated from the basic metrics already covered.  Each extended metric will be covered and will include definition, usage, and a code example."
+    "The definition used in this research for extended metrics is to cover anything that is calculated from the basic metrics already covered.  Each extended metric will be covered and will include definition, usage, and a code example.\n",
+    "\n",
+    "The code below is used throughout the following examples.  It is done once here to reduce repetitiveness"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "439.18"
+      ]
+     },
+     "execution_count": 33,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from web3 import Web3\n",
+    "import requests\n",
+    "import math\n",
+    "w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/40f886f8daa347ec901aa7e83d3300de')) # Infura\n",
+    "\n",
+    "token_abi = open(f\"abis/ohm.abi\", \"r\").read()\n",
+    "stoken_abi = open(f\"abis/sohm.abi\", \"r\").read()\n",
+    "staking_abi = open(f\"abis/sohmstaking.abi\", \"r\").read()\n",
+    "supply_abi = open(f\"abis/ohmcirculating.abi\", \"r\").read()\n",
+    "\n",
+    "token_contract = w3.eth.contract(Web3.toChecksumAddress('0x383518188c0c6d7730d91b2c03a03c837814a899'), abi=token_abi)\n",
+    "stoken_contract = w3.eth.contract(Web3.toChecksumAddress('0x04F2694C8fcee23e8Fd0dfEA1d4f5Bb8c352111F'), abi=stoken_abi)\n",
+    "staking_contract = w3.eth.contract(Web3.toChecksumAddress('0xFd31c7d00Ca47653c6Ce64Af53c1571f9C36566a'), abi=staking_abi)\n",
+    "supply_contract = w3.eth.contract(Web3.toChecksumAddress('0x0EFFf9199Aa1Ac3C3E34E957567C1BE8bF295034'), abi=supply_abi)\n",
+    "\n",
+    "market_price = requests.get(\"https://api.coingecko.com/api/v3/simple/price?ids=olympus&vs_currencies=usd\").json()['olympus']['usd']\n",
+    "market_price"
    ]
   },
   {
@@ -18,7 +56,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 1,
+   "execution_count": 34,
    "metadata": {},
    "outputs": [
     {
@@ -27,20 +65,13 @@
        "31053.0"
       ]
      },
-     "execution_count": 1,
+     "execution_count": 34,
      "metadata": {},
      "output_type": "execute_result"
     }
    ],
    "source": [
-    "from web3 import Web3\n",
-    "import math\n",
-    "w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/40f886f8daa347ec901aa7e83d3300de')) # Infura\n",
-    "\n",
-    "token_abi = open(f\"abis/sohmstaking.abi\", \"r\").read()\n",
-    "contract = w3.eth.contract(Web3.toChecksumAddress('0xFd31c7d00Ca47653c6Ce64Af53c1571f9C36566a'), abi=token_abi)\n",
-    "\n",
-    "epoch = contract.functions.epoch().call()\n",
+    "epoch = staking_contract.functions.epoch().call()\n",
     "staking_reward = epoch[3] / math.pow(10, 9)\n",
     "staking_reward"
    ]
@@ -55,31 +86,22 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 7,
+   "execution_count": 35,
    "metadata": {},
    "outputs": [
     {
      "data": {
       "text/plain": [
-       "0.00575501060350834"
+       "0.005756330365148433"
       ]
      },
-     "execution_count": 7,
+     "execution_count": 35,
      "metadata": {},
      "output_type": "execute_result"
     }
    ],
    "source": [
-    "from web3 import Web3\n",
-    "import math\n",
-    "w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/40f886f8daa347ec901aa7e83d3300de')) # Infura\n",
-    "\n",
-    "staking_abi = open(f\"abis/sohmstaking.abi\", \"r\").read()\n",
-    "staking_contract = w3.eth.contract(Web3.toChecksumAddress('0xFd31c7d00Ca47653c6Ce64Af53c1571f9C36566a'), abi=staking_abi)\n",
-    "token_abi = open(f\"abis/sohm.abi\", \"r\").read()\n",
-    "token_contract = w3.eth.contract(Web3.toChecksumAddress('0x04F2694C8fcee23e8Fd0dfEA1d4f5Bb8c352111F'), abi=token_abi)\n",
-    "\n",
-    "circ = token_contract.functions.circulatingSupply().call() / math.pow(10, 9)\n",
+    "circ = stoken_contract.functions.circulatingSupply().call() / math.pow(10, 9)\n",
     "epoch = staking_contract.functions.epoch().call()\n",
     "\n",
     "staking_reward = epoch[3] / math.pow(10, 9)\n",
@@ -97,31 +119,22 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 9,
+   "execution_count": 36,
    "metadata": {},
    "outputs": [
     {
      "data": {
       "text/plain": [
-       "53475.26619064352"
+       "535.5230215392438"
       ]
      },
-     "execution_count": 9,
+     "execution_count": 36,
      "metadata": {},
      "output_type": "execute_result"
     }
    ],
    "source": [
-    "from web3 import Web3\n",
-    "import math\n",
-    "w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/40f886f8daa347ec901aa7e83d3300de')) # Infura\n",
-    "\n",
-    "staking_abi = open(f\"abis/sohmstaking.abi\", \"r\").read()\n",
-    "staking_contract = w3.eth.contract(Web3.toChecksumAddress('0xFd31c7d00Ca47653c6Ce64Af53c1571f9C36566a'), abi=staking_abi)\n",
-    "token_abi = open(f\"abis/sohm.abi\", \"r\").read()\n",
-    "token_contract = w3.eth.contract(Web3.toChecksumAddress('0x04F2694C8fcee23e8Fd0dfEA1d4f5Bb8c352111F'), abi=token_abi)\n",
-    "\n",
-    "circ = token_contract.functions.circulatingSupply().call() / math.pow(10, 9)\n",
+    "circ = stoken_contract.functions.circulatingSupply().call() / math.pow(10, 9)\n",
     "epoch = staking_contract.functions.epoch().call()\n",
     "\n",
     "staking_reward = epoch[3] / math.pow(10, 9)\n",
@@ -140,31 +153,22 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 10,
+   "execution_count": 37,
    "metadata": {},
    "outputs": [
     {
      "data": {
       "text/plain": [
-       "0.08989692347131362"
+       "0.08991246973810929"
       ]
      },
-     "execution_count": 10,
+     "execution_count": 37,
      "metadata": {},
      "output_type": "execute_result"
     }
    ],
    "source": [
-    "from web3 import Web3\n",
-    "import math\n",
-    "w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/40f886f8daa347ec901aa7e83d3300de')) # Infura\n",
-    "\n",
-    "staking_abi = open(f\"abis/sohmstaking.abi\", \"r\").read()\n",
-    "staking_contract = w3.eth.contract(Web3.toChecksumAddress('0xFd31c7d00Ca47653c6Ce64Af53c1571f9C36566a'), abi=staking_abi)\n",
-    "token_abi = open(f\"abis/sohm.abi\", \"r\").read()\n",
-    "token_contract = w3.eth.contract(Web3.toChecksumAddress('0x04F2694C8fcee23e8Fd0dfEA1d4f5Bb8c352111F'), abi=token_abi)\n",
-    "\n",
-    "circ = token_contract.functions.circulatingSupply().call() / math.pow(10, 9)\n",
+    "circ = stoken_contract.functions.circulatingSupply().call() / math.pow(10, 9)\n",
     "epoch = staking_contract.functions.epoch().call()\n",
     "\n",
     "staking_reward = epoch[3] / math.pow(10, 9)\n",
@@ -182,10 +186,25 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 38,
    "metadata": {},
-   "outputs": [],
-   "source": []
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "13800600"
+      ]
+     },
+     "execution_count": 38,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "epoch = staking_contract.functions.epoch().call()\n",
+    "next_rebase = epoch[2]\n",
+    "next_rebase"
+   ]
   },
   {
    "cell_type": "markdown",
@@ -196,10 +215,25 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 39,
    "metadata": {},
-   "outputs": [],
-   "source": []
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "2369192814.6740994"
+      ]
+     },
+     "execution_count": 39,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "circ = stoken_contract.functions.circulatingSupply().call() / math.pow(10, 9)\n",
+    "staking_tvl = circ * market_price\n",
+    "staking_tvl"
+   ]
   },
   {
    "cell_type": "markdown",
@@ -210,24 +244,57 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 40,
    "metadata": {},
-   "outputs": [],
-   "source": []
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "2677420781.689735"
+      ]
+     },
+     "execution_count": 40,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "circ = supply_contract.functions.OHMCirculatingSupply().call() / math.pow(10, 9)\n",
+    "market_cap = circ * market_price\n",
+    "market_cap"
+   ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## Percent Staked"
+    "## Percent Staked\n",
+    "The percentage of OHM staked can be obtained by taking this extended metric and multiplying by 100."
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 41,
    "metadata": {},
-   "outputs": [],
-   "source": []
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.8848787724650768"
+      ]
+     },
+     "execution_count": 41,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "staked_circ_supply = stoken_contract.functions.circulatingSupply().call() / math.pow(10, 9)\n",
+    "circ_supply = supply_contract.functions.OHMCirculatingSupply().call() / math.pow(10, 9)\n",
+    "\n",
+    "percent_staked = staked_circ_supply / circ_supply\n",
+    "percent_staked"
+   ]
   }
  ],
  "metadata": {

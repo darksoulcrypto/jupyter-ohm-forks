@@ -287,29 +287,57 @@ div.rendered_html tbody tr:hover {
 <section id="OHM-Fork-Extended-Metrics">
 <h1>OHM Fork Extended Metrics<a class="headerlink" href="#OHM-Fork-Extended-Metrics" title="Permalink to this headline">¶</a></h1>
 <p>The definition used in this research for extended metrics is to cover anything that is calculated from the basic metrics already covered. Each extended metric will be covered and will include definition, usage, and a code example.</p>
-<section id="Staking-Reward">
-<h2>Staking Reward<a class="headerlink" href="#Staking-Reward" title="Permalink to this headline">¶</a></h2>
-<p>The staking reward is to total OHM to be minted for this epoch. Each epoch the staking reward calculated below is minted and this would be considered OHM inflation. Many other extended metrics are based off of staking reward.</p>
+<p>The code below is used throughout the following examples. It is done once here to reduce repetitiveness</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">web3</span> <span class="kn">import</span> <span class="n">Web3</span>
+<span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="n">w3</span> <span class="o">=</span> <span class="n">Web3</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">HTTPProvider</span><span class="p">(</span><span class="s1">&#39;https://mainnet.infura.io/v3/40f886f8daa347ec901aa7e83d3300de&#39;</span><span class="p">))</span> <span class="c1"># Infura</span>
 
-<span class="n">token_abi</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;abis/sohmstaking.abi&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<span class="n">contract</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">eth</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">toChecksumAddress</span><span class="p">(</span><span class="s1">&#39;0xFd31c7d00Ca47653c6Ce64Af53c1571f9C36566a&#39;</span><span class="p">),</span> <span class="n">abi</span><span class="o">=</span><span class="n">token_abi</span><span class="p">)</span>
+<span class="n">token_abi</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;abis/ohm.abi&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">stoken_abi</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;abis/sohm.abi&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">staking_abi</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;abis/sohmstaking.abi&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">supply_abi</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;abis/ohmcirculating.abi&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
-<span class="n">epoch</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">epoch</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span>
+<span class="n">token_contract</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">eth</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">toChecksumAddress</span><span class="p">(</span><span class="s1">&#39;0x383518188c0c6d7730d91b2c03a03c837814a899&#39;</span><span class="p">),</span> <span class="n">abi</span><span class="o">=</span><span class="n">token_abi</span><span class="p">)</span>
+<span class="n">stoken_contract</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">eth</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">toChecksumAddress</span><span class="p">(</span><span class="s1">&#39;0x04F2694C8fcee23e8Fd0dfEA1d4f5Bb8c352111F&#39;</span><span class="p">),</span> <span class="n">abi</span><span class="o">=</span><span class="n">stoken_abi</span><span class="p">)</span>
+<span class="n">staking_contract</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">eth</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">toChecksumAddress</span><span class="p">(</span><span class="s1">&#39;0xFd31c7d00Ca47653c6Ce64Af53c1571f9C36566a&#39;</span><span class="p">),</span> <span class="n">abi</span><span class="o">=</span><span class="n">staking_abi</span><span class="p">)</span>
+<span class="n">supply_contract</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">eth</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">toChecksumAddress</span><span class="p">(</span><span class="s1">&#39;0x0EFFf9199Aa1Ac3C3E34E957567C1BE8bF295034&#39;</span><span class="p">),</span> <span class="n">abi</span><span class="o">=</span><span class="n">supply_abi</span><span class="p">)</span>
+
+<span class="n">market_price</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.coingecko.com/api/v3/simple/price?ids=olympus&amp;vs_currencies=usd&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;olympus&#39;</span><span class="p">][</span><span class="s1">&#39;usd&#39;</span><span class="p">]</span>
+<span class="n">market_price</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+439.18
+</pre></div></div>
+</div>
+<section id="Staking-Reward">
+<h2>Staking Reward<a class="headerlink" href="#Staking-Reward" title="Permalink to this headline">¶</a></h2>
+<p>The staking reward is to total OHM to be minted for this epoch. Each epoch the staking reward calculated below is minted and this would be considered OHM inflation. Many other extended metrics are based off of staking reward.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">epoch</span> <span class="o">=</span> <span class="n">staking_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">epoch</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span>
 <span class="n">staking_reward</span> <span class="o">=</span> <span class="n">epoch</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
 <span class="n">staking_reward</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -322,20 +350,11 @@ div.rendered_html tbody tr:hover {
 <h2>Staking Rebase<a class="headerlink" href="#Staking-Rebase" title="Permalink to this headline">¶</a></h2>
 <p>The staking rebase is the amount of newly minted OHM distributed per OHM staked.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">web3</span> <span class="kn">import</span> <span class="n">Web3</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="n">w3</span> <span class="o">=</span> <span class="n">Web3</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">HTTPProvider</span><span class="p">(</span><span class="s1">&#39;https://mainnet.infura.io/v3/40f886f8daa347ec901aa7e83d3300de&#39;</span><span class="p">))</span> <span class="c1"># Infura</span>
-
-<span class="n">staking_abi</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;abis/sohmstaking.abi&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<span class="n">staking_contract</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">eth</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">toChecksumAddress</span><span class="p">(</span><span class="s1">&#39;0xFd31c7d00Ca47653c6Ce64Af53c1571f9C36566a&#39;</span><span class="p">),</span> <span class="n">abi</span><span class="o">=</span><span class="n">staking_abi</span><span class="p">)</span>
-<span class="n">token_abi</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;abis/sohm.abi&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<span class="n">token_contract</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">eth</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">toChecksumAddress</span><span class="p">(</span><span class="s1">&#39;0x04F2694C8fcee23e8Fd0dfEA1d4f5Bb8c352111F&#39;</span><span class="p">),</span> <span class="n">abi</span><span class="o">=</span><span class="n">token_abi</span><span class="p">)</span>
-
-<span class="n">circ</span> <span class="o">=</span> <span class="n">token_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">circulatingSupply</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span></span><span class="n">circ</span> <span class="o">=</span> <span class="n">stoken_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">circulatingSupply</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
 <span class="n">epoch</span> <span class="o">=</span> <span class="n">staking_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">epoch</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span>
 
 <span class="n">staking_reward</span> <span class="o">=</span> <span class="n">epoch</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
@@ -345,12 +364,12 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.00575501060350834
+0.005756330365148433
 </pre></div></div>
 </div>
 </section>
@@ -358,20 +377,11 @@ div.rendered_html tbody tr:hover {
 <h2>Staking APY<a class="headerlink" href="#Staking-APY" title="Permalink to this headline">¶</a></h2>
 <p>This metric is somewhat obvious hopefully. To get a value that matches with the Olympus DAO dashboard the staking_apy below needs to be multiplied by 100.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">web3</span> <span class="kn">import</span> <span class="n">Web3</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="n">w3</span> <span class="o">=</span> <span class="n">Web3</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">HTTPProvider</span><span class="p">(</span><span class="s1">&#39;https://mainnet.infura.io/v3/40f886f8daa347ec901aa7e83d3300de&#39;</span><span class="p">))</span> <span class="c1"># Infura</span>
-
-<span class="n">staking_abi</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;abis/sohmstaking.abi&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<span class="n">staking_contract</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">eth</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">toChecksumAddress</span><span class="p">(</span><span class="s1">&#39;0xFd31c7d00Ca47653c6Ce64Af53c1571f9C36566a&#39;</span><span class="p">),</span> <span class="n">abi</span><span class="o">=</span><span class="n">staking_abi</span><span class="p">)</span>
-<span class="n">token_abi</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;abis/sohm.abi&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<span class="n">token_contract</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">eth</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">toChecksumAddress</span><span class="p">(</span><span class="s1">&#39;0x04F2694C8fcee23e8Fd0dfEA1d4f5Bb8c352111F&#39;</span><span class="p">),</span> <span class="n">abi</span><span class="o">=</span><span class="n">token_abi</span><span class="p">)</span>
-
-<span class="n">circ</span> <span class="o">=</span> <span class="n">token_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">circulatingSupply</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span></span><span class="n">circ</span> <span class="o">=</span> <span class="n">stoken_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">circulatingSupply</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
 <span class="n">epoch</span> <span class="o">=</span> <span class="n">staking_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">epoch</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span>
 
 <span class="n">staking_reward</span> <span class="o">=</span> <span class="n">epoch</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
@@ -382,12 +392,12 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-53475.26619064352
+535.5230215392438
 </pre></div></div>
 </div>
 </section>
@@ -395,20 +405,11 @@ div.rendered_html tbody tr:hover {
 <h2>5 Day ROI<a class="headerlink" href="#5-Day-ROI" title="Permalink to this headline">¶</a></h2>
 <p>The 5 day rate is a good metric to use when trying to determine whether to buy bonds which mature after 5 days or to simply buy and stake. To get the % shown in the dashboard simply multiple by 100 similar to staking_apy above.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">web3</span> <span class="kn">import</span> <span class="n">Web3</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="n">w3</span> <span class="o">=</span> <span class="n">Web3</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">HTTPProvider</span><span class="p">(</span><span class="s1">&#39;https://mainnet.infura.io/v3/40f886f8daa347ec901aa7e83d3300de&#39;</span><span class="p">))</span> <span class="c1"># Infura</span>
-
-<span class="n">staking_abi</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;abis/sohmstaking.abi&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<span class="n">staking_contract</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">eth</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">toChecksumAddress</span><span class="p">(</span><span class="s1">&#39;0xFd31c7d00Ca47653c6Ce64Af53c1571f9C36566a&#39;</span><span class="p">),</span> <span class="n">abi</span><span class="o">=</span><span class="n">staking_abi</span><span class="p">)</span>
-<span class="n">token_abi</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;abis/sohm.abi&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<span class="n">token_contract</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">eth</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">Web3</span><span class="o">.</span><span class="n">toChecksumAddress</span><span class="p">(</span><span class="s1">&#39;0x04F2694C8fcee23e8Fd0dfEA1d4f5Bb8c352111F&#39;</span><span class="p">),</span> <span class="n">abi</span><span class="o">=</span><span class="n">token_abi</span><span class="p">)</span>
-
-<span class="n">circ</span> <span class="o">=</span> <span class="n">token_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">circulatingSupply</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span></span><span class="n">circ</span> <span class="o">=</span> <span class="n">stoken_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">circulatingSupply</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
 <span class="n">epoch</span> <span class="o">=</span> <span class="n">staking_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">epoch</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span>
 
 <span class="n">staking_reward</span> <span class="o">=</span> <span class="n">epoch</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
@@ -419,61 +420,108 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.08989692347131362
+0.08991246973810929
 </pre></div></div>
 </div>
 </section>
 <section id="Next-Rebase">
 <h2>Next Rebase<a class="headerlink" href="#Next-Rebase" title="Permalink to this headline">¶</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
+<span></span><span class="n">epoch</span> <span class="o">=</span> <span class="n">staking_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">epoch</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span>
+<span class="n">next_rebase</span> <span class="o">=</span> <span class="n">epoch</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">next_rebase</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+13800600
+</pre></div></div>
 </div>
 </section>
 <section id="Staking-TVL">
 <h2>Staking TVL<a class="headerlink" href="#Staking-TVL" title="Permalink to this headline">¶</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
+<span></span><span class="n">circ</span> <span class="o">=</span> <span class="n">stoken_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">circulatingSupply</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span class="n">staking_tvl</span> <span class="o">=</span> <span class="n">circ</span> <span class="o">*</span> <span class="n">market_price</span>
+<span class="n">staking_tvl</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2369192814.6740994
+</pre></div></div>
 </div>
 </section>
 <section id="Market-Cap">
 <h2>Market Cap<a class="headerlink" href="#Market-Cap" title="Permalink to this headline">¶</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
+<span></span><span class="n">circ</span> <span class="o">=</span> <span class="n">supply_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">OHMCirculatingSupply</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span class="n">market_cap</span> <span class="o">=</span> <span class="n">circ</span> <span class="o">*</span> <span class="n">market_price</span>
+<span class="n">market_cap</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2677420781.689735
+</pre></div></div>
 </div>
 </section>
 <section id="Percent-Staked">
 <h2>Percent Staked<a class="headerlink" href="#Percent-Staked" title="Permalink to this headline">¶</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<p>The percentage of OHM staked can be obtained by taking this extended metric and multiplying by 100.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
+<span></span><span class="n">staked_circ_supply</span> <span class="o">=</span> <span class="n">stoken_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">circulatingSupply</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span class="n">circ_supply</span> <span class="o">=</span> <span class="n">supply_contract</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">OHMCirculatingSupply</span><span class="p">()</span><span class="o">.</span><span class="n">call</span><span class="p">()</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+
+<span class="n">percent_staked</span> <span class="o">=</span> <span class="n">staked_circ_supply</span> <span class="o">/</span> <span class="n">circ_supply</span>
+<span class="n">percent_staked</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.8848787724650768
+</pre></div></div>
 </div>
 </section>
 </section>
